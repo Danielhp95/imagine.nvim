@@ -1,0 +1,43 @@
+============================================================================
+----------------------------------------------------------------------------
+                                                                    *imagine.nvim*
+
+A small tool to help you temporarily clone repositories to navigate in nvim.
+
+Motivation: Navigating code via Github or derivatives is annoying, most developers whom
+use nvim will surely have a local workflow for navigating code which is superior to
+browser based methods.
+
+This plugin gives the following functionality:
+  1. Clone repos into a temporary data folder
+  2. Navigate those repositories with all nvim tooling
+  3. Remove cloned repos when they are no longer needed.
+
+  Work in Progress:
+  4. Seemlessly switch between "local" files and cloned repositories by
+  managing switching the working directory under the hood.
+
+============================================================================
+USAGE                                                         *tmpclone-usage*
+
+
+Call the setup function to activate: `require("imagine").setup({opts})`
+
+`{opts}` is a table with the following possible values:
+  - `results_dir`:
+
+This plugin presents 3 high level functions:                  *tmpclone.clone*
+
+         Vim: `:TmpcloneClone {url}`
+         Lua: `require("tmpclone.core").clone({url})`
+
+
+KEYMAPS
+
+Suggested keymaps:
+
+```
+vim.keymap.set('v', '<Leader>i', ':<C-u>lua vim.cmd("Imagine " .. require("imagine.util").get_visual_selection()<CR>', { silent = true })
+```
+
+ vim:tw=78:ts=8:noet:ft=help:norl:
