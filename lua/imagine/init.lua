@@ -10,15 +10,14 @@ local setup_user_commands = function()
   -- TODO: I think the visual "ImagineSelected" should not be here?
   cmd("Imagine", function(argtable) Core.imagine_txt2img({
       prompt = argtable.fargs[1],
-      cmd_config = Imagine.opts.path_to_cmd_config,
       opts = Imagine.opts,
     }) end,
       {nargs = "?", -- One or neither
        complete = nil
      })
-  cmd("ImagineRemember", function(argtable) print("TODO") end,
+  cmd("ImagineRemember", function(argtable) Core.rembember(Imagine.opts.results_dir, Imagine.opts.image_viewer) end,
       {nargs = "?",
-      complete = nil,
+      complete = nil  -- Util.vimscript_command_completion,
     })
 
   -- Config file operations
@@ -42,16 +41,20 @@ end
 Imagine.setup = function(opts)
   opts = opts or {}  -- Ensures that if nothing is passed, we have an empty set
   opts.results_dir = opts.results_dir or vim.fn.stdpath('data') .. '/imagine.nvim/images'
-  opts.path_to_cmd_config = opts.path_to_cmd_config or opts.results_dir .. '/config.txt'
-  opts.path_to_executable = opts.path_to_executable or "TODO"
-  opts.cmd = opts.cmd or "TODO"
+  opts.image_viewer = opts.image_viewer or 'imv'
+
+  opts.path_to_cmd_config = opts.path_to_cmd_config or opts.results_dir .. '/config.json'
+  opts.path_to_executable = opts.path_to_executable or error('Imagine.nvim: Path to executable must be supplied')
+  opts.cmd = opts.cmd or error('Imagine.nvim: cmd must be supplied')
+
+  Util.update_config_file(opts.path_to_cmd_config, vim.json.encode(opts.config))
 
   Imagine.opts = opts
 
   setup_user_commands()
   Util.create_results_repository(opts.results_dir)
 
-  vim.keymap.set('v', '<Leader>i', ':<C-u>lua vim.cmd("Imagine " .. require("imagine.util").get_visual_selection())<CR>', { silent = false })
+  vim.keymap.set('v', opts.visual_selection_keymap, ':<C-u>lua vim.cmd("Imagine " .. require("imagine.util").get_visual_selection())<CR>', { silent = false })
 end
 
 

@@ -2,42 +2,59 @@
 ----------------------------------------------------------------------------
                                                                     *imagine.nvim*
 
-A small tool to help you temporarily clone repositories to navigate in nvim.
+Integration of text to image models into neovim. Currently only integration
+with Stable-diffusion is implemented. Refer to plugin's Github README to see
+how to install all of the required moving pieces.
 
-Motivation: Navigating code via Github or derivatives is annoying, most developers whom
-use nvim will surely have a local workflow for navigating code which is superior to
-browser based methods.
-
-This plugin gives the following functionality:
-  1. Clone repos into a temporary data folder
-  2. Navigate those repositories with all nvim tooling
-  3. Remove cloned repos when they are no longer needed.
-
-  Work in Progress:
-  4. Seemlessly switch between "local" files and cloned repositories by
-  managing switching the working directory under the hood.
 
 ============================================================================
-USAGE                                                         *tmpclone-usage*
+USAGE                                                         *imagine.nvim-usage*
 
 
 Call the setup function to activate: `require("imagine").setup({opts})`
 
-`{opts}` is a table with the following possible values:
-  - `results_dir`:
 
-This plugin presents 3 high level functions:                  *tmpclone.clone*
+Parameters:
+  {opts} is a table with the following values:
+  - `results_dir`: Results where generated images will be stored
+  - `path_to_executable`: Path pointing to file to `nix` file which is used to
+    load environment with Stable-diffusion dependencies.
+  - `path_to_cmd_config`: Path to json file containing {config} (see below).
+  - `cmd`: Command to be executed within Stable-diffusion environment.
+  - `visual_selection_keymap`: Keymap for sending visual selection as prompt
+    to model
+  - `image_viewer`: External image viewer program to be used to render images
+    outside of `nvim`
+  - {config} is a table with the following values:
+    - `model_config`: Stable-diffusion specific config. Find more info here under `optional arguments` in https://github.com/CompVis/stable-diffusion#reference-sampling-script
+    - `prompt_extras`: String to append at the end of prompt, for "prompt
+      engineering"
 
-         Vim: `:TmpcloneClone {url}`
-         Lua: `require("tmpclone.core").clone({url})`
+                                                        *imagine.nvim.Imagine*
 
+`:Imagine <text-prompt>`
 
-KEYMAPS
+Main plugin functionality. Passes `<text-prompt>` to Stable-diffusion and renders an image based on it. This is done by opening a `nvim` terminal, changing the terminal's working directory to `path_to_executable`, and running `cmd` with `model_config` and appending `prompt_extras` to `<text-prompt>`. These values are set within the plugin's `setup`call.
 
-Suggested keymaps:
+                                                *imagine.nvim.ImagineRemember*
 
-```
-vim.keymap.set('v', '<Leader>i', ':<C-u>lua vim.cmd("Imagine " .. require("imagine.util").get_visual_selection()<CR>', { silent = true })
-```
+`:ImagineRemember`
+
+Opens a `Telescope.picker` showing the directories in `results_dir` (set during plugin `setup`) containing all generated images. Selecting one of them will open the pictures in directories based on `image_viewer` (set during plugin `setup`)
+
+                                          *imagine.nvim.ImagineOpenConfigFile*
+
+`:ImagineOpenConfigFile`
+
+Opens config file containing `model_config` and `prompt_extras` which will be
+used during the call to Stable-diffusion. These will be overriden every time
+that the plugin's `setup` function is called. It is recommended to set
+preferred config during `setup`.
+
+                                          *imagine.nvim.ImagineSetConfigFile*
+
+`:ImagineSetConfigFile <path-to-file>`
+
+Sets path to json config file containing ` model_config` and `prompt_extras`(see `:help imagine.nvim.Imagine` for explanation) This path will be overriden every time that the plugin's `setup` function is called. It is recommended to set path to config file during `setup`.
 
  vim:tw=78:ts=8:noet:ft=help:norl:

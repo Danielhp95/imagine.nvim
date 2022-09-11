@@ -6,9 +6,10 @@ local M = {}
 
 -- Completion function for user commands
 -- For info on custom complete :command-complete
+-- TODO:
 M.vimscript_command_completion = function(argLead, cmdLine, cusorPos)
   local completions = {}
-  for _, repo in ipairs(M.get_result_directories()) do
+  for _, repo in ipairs(M.get_image_dirs()) do
     if string.match(repo, argLead) then
       table.insert(completions, M.get_dir_name_from_absolute_path(repo))
     end
@@ -17,7 +18,7 @@ M.vimscript_command_completion = function(argLead, cmdLine, cusorPos)
 end
 
 
-M.get_result_directories = function (dir)
+M.get_image_dirs = function (dir)
   return Scandir.scan_dir(dir, {only_dirs = true, depth=1})
 end
 
@@ -57,6 +58,14 @@ M.read_file = function(path)
     local content = file:read "*a" -- *a or *all reads the whole file
     file:close()
     return content
+end
+
+M.update_config_file = function(path, new_config)
+    local file = io.open(path, "w+")
+    if file then
+      file:write(new_config, "\n")
+      file:close()
+    end
 end
 
 return M
